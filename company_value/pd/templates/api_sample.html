@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>API 호출 예제 (Flask)</title>
+  <script src="https://code.jquery.com/jquery-1.11.0.js"></script>
+  <script>
+    function getData(){
+      $.ajax({
+        url : "/getApiCall",
+        type: "POST",
+        data: $("#form").serialize(),
+        dataType:"xml",
+        success: function(resultData){
+          $("#list").html("");
+          var resultCode = $(resultData).find("code").text();
+          var resultMessage = $(resultData).find("message").text();
+          if(resultCode != "00"){
+            alert("에러 발생: " + resultMessage);
+          } else {
+            dataList(resultData);
+          }
+        },
+        error: function(xhr, status, error){
+          alert("API 호출 실패");
+        }
+      });
+    }
+
+    function dataList(resultData){
+      let items = "<table border='1'><thead><tr><th>번호</th><th>자치단체코드</th><th>인허가번호</th><th>서비스ID</th></tr></thead><tbody>";
+      $(resultData).find("row").each(function(){
+        items += "<tr>";
+        items += "<td>" + $(this).find('rowNum').text() + "</td>";
+        items += "<td>" + $(this).find('opnSfTeamCode').text() + "</td>";
+        items += "<td>" + $(this).find('mgtNo').text() + "</td>";
+        items += "<td>" + $(this).find('opnSvcId').text() + "</td>";
+        items += "</tr>";
+      });
+      items += "</tbody></table>";
+      $("#list").html(items);
+    }
+  </script>
+</head>
+<body>
+  <form id="form">
+    <input type="text" name="localcode" placeholder="지역코드 예: 1100000" />
+    <input type="text" name="bgnYmd" placeholder="시작날짜 (YYYYMMDD)" />
+    <input type="text" name="endYmd" placeholder="종료날짜 (YYYYMMDD)" />
+    <input type="button" value="API 호출하기" onclick="getData();" />
+  </form>
+  <div id="list"></div>
+</body>
+</html>
